@@ -161,7 +161,6 @@ plt.show()
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import GRU, Dense
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Function to create sequences
 def create_sequences(data, seq_length):
