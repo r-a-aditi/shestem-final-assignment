@@ -161,6 +161,7 @@ plt.show()
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import GRU, Dense
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Function to create sequences
 def create_sequences(data, seq_length):
@@ -170,9 +171,10 @@ def create_sequences(data, seq_length):
         y.append(data[i+seq_length])
     return np.array(X), np.array(y)
 
-# Prepare data
+# Looking at the last 24 hours of vehicle counts to predict the next hour.
 sequence_length = 24
-X_seq, y_seq = create_sequences(df['Vehicles'].values, sequence_length)
+data_values = df['Vehicles'].values
+X_seq, y_seq = create_sequences(data_values, sequence_length)
 X_seq = X_seq.reshape((X_seq.shape[0], X_seq.shape[1], 1))
 
 # Build GRU Model
@@ -182,15 +184,18 @@ model.add(Dense(1))
 model.compile(optimizer='adam', loss='mse')
 
 # Train the model
-history = model.fit(X_seq, y_seq, epochs=10, batch_size=32, validation_split=0.2)
+history = model.fit(X_seq, y_seq, epochs=2, batch_size=32, validation_split=0.2)
 
-# Plot training and validation loss
-plt.figure(figsize=(6, 4))
-plt.plot(history.history['loss'], label='Train Loss')
-plt.plot(history.history['val_loss'], label='Validation Loss')
-plt.title('GRU Training Loss Over Epochs')
-plt.xlabel('Epoch')
-plt.ylabel('Loss (MSE)')
-plt.legend()
+# Predict on the training data
+y_pred_gru = model.predict(X_seq)
+
+# Plot actual vs predicted values
+plt.figure(figsize=(10, 5))
+
+plt.scatter(y_seq, y_pred_gru, alpha=0.7, color = 'green')
+plt.plot([min(y_seq), max(y_seq)], [min(y_seq), max(y_seq)], 'k--', lw=2)
+plt.title('GRU Predictions vs Actual')
+plt.xlabel('Time Step')
+plt.ylabel('Vehicles')
 plt.tight_layout()
 plt.show()
